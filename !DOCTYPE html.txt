@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phelps Dodge Carbon Leaf Generator</title>
+    
+    <style>
+        /* การจัดวางหน้าเว็บและพื้นหลัง */
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(to bottom, #87CEEB, #A4D4A4); /* ฟ้าอ่อนไปเขียวอ่อน */
+            overflow: hidden; /* ซ่อนสิ่งที่เกินขอบเขตจอ */
+        }
+
+        /* ภาชนะหลักสำหรับฟอร์มและป้าย */
+        #app-container {
+            width: 40%;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            overflow-y: auto; /* ให้เลื่อนได้หากหน้าจอมือถือ */
+        }
+
+        /* ภาชนะสำหรับต้นไม้ (เต็มพื้นที่ที่เหลือ) */
+        #tree-container {
+            width: 60%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        /* รูปแบบมาสคอต */
+        #mascot-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #mascot-img {
+            width: 100px; /* สมมติขนาดภาพมาสคอต */
+            height: auto;
+        }
+        #mascot-bubble {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        /* รูปแบบคำถามและปุ่ม */
+        .question-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        #submit-button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: #4CAF50; /* สีเขียว */
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        #submit-button:hover {
+            background-color: #45a049;
+        }
+
+        /* รูปแบบใบไม้ (จะถูกสร้างด้วย JS) */
+        .carbon-leaf {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #4CAF50; /* สีเขียว */
+            border-radius: 50%; /* ทำให้เป็นทรงกลมง่ายๆ */
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* สไตล์สำหรับภาพต้นไม้ */
+        #tree-base-img {
+            width: 100%;
+            max-width: 500px; /* กำหนดขนาดสูงสุดของต้นไม้ */
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <h1>🌳 Phelps Dodge: แปลงความดีเป็นใบไม้ให้โลก 🌎</h1>
+        
+        <div id="total-leaves-display">
+            <h2>ยอดรวมใบไม้ที่สะสม: <span id="leaf-counter">0</span> ใบ</h2>
+        </div>
+
+        <div id="mascot-section">
+            <img src="mascot.png" alt="น้องทองแดงกู้โลก" id="mascot-img"> 
+            <p id="mascot-bubble">มาช่วยกันตอบคำถามเพื่อมอบใบไม้สีเขียวให้ต้นไม้กู้โลกกันนะ!</p>
+        </div>
+
+        <div id="questionnaire">
+            <form id="leaf-form">
+                <h3>ภารกิจวิศวกรกู้โลก (เลือกข้อที่ทำบ่อยที่สุด):</h3>
+
+                <div class="question-group">
+                    <p>1. คุณปิดไฟ/ถอดปลั๊กเมื่อไม่ใช้ไหม?</p>
+                    <label><input type="radio" name="q1" value="3" required> ปิดเสมอ (3 ใบ)</label><br>
+                    <label><input type="radio" name="q1" value="1"> บางครั้ง (1 ใบ)</label>
+                </div>
+
+                <div class="question-group">
+                    <p>2. คุณชวนเพื่อน/ครอบครัวประหยัดไฟไหม?</p>
+                    <label><input type="radio" name="q2" value="3" required> ชวนเสมอ (3 ใบ)</label><br>
+                    <label><input type="radio" name="q2" value="0"> ไม่เคยชวน (0 ใบ)</label>
+                </div>
+
+                <div class="question-group">
+                    <p>3. คุณเห็นสายไฟชำรุด แล้วรีบบอกผู้ใหญ่ไหม? (ความปลอดภัย)</p>
+                    <label><input type="radio" name="q3" value="5" required> บอกทันที (5 ใบ)</label><br>
+                    <label><input type="radio" name="q3" value="0"> ไม่ได้บอก (0 ใบ)</label>
+                </div>
+                
+                <button type="submit" id="submit-button">ส่งพลังงานดี! 🚀</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="tree-container">
+        <img src="tree-base.png" alt="ต้นไม้กู้โลก" id="tree-base-img"> 
+    </div>
+
+    <script>
+        // ตัวแปรสำหรับเก็บยอดรวมใบไม้
+        let totalLeaves = 0;
+
+        // ฟังก์ชันสำหรับสร้างและจัดการ Animation ใบไม้
+        function createLeafAnimation(score) {
+            const treeContainer = document.getElementById('tree-container');
+            const totalLeafCount = score;
+
+            for (let i = 0; i < totalLeafCount; i++) {
+                // 1. สร้างองค์ประกอบใบไม้
+                const leaf = document.createElement('div');
+                leaf.classList.add('carbon-leaf');
+
+                // กำหนดตำแหน่งเริ่มต้นสุ่ม (จำลองการปลิวมาจากหน้าต่างฝั่งซ้าย)
+                leaf.style.left = `${Math.random() * 50}px`; 
+                leaf.style.top = `${Math.random() * 200}px`; 
+                leaf.style.opacity = 0; // เริ่มต้นให้มองไม่เห็น
+
+                treeContainer.appendChild(leaf);
+                
+                // กำหนดตำแหน่งเป้าหมายบนต้นไม้ (สุ่มบริเวณฐาน)
+                const targetX = 150 + Math.random() * 300; 
+                const targetY = 300 + Math.random() * 200; 
+                
+                // 2. ใช้ setTimeout เพื่อหน่วงเวลาให้ใบไม้ทยอยปรากฏ
+                setTimeout(() => {
+                    leaf.style.opacity = 1;
+                    
+                    // 3. ใช้ CSS transition สำหรับการเคลื่อนไหว
+                    leaf.style.transition = `all ${1.5 + Math.random()}s ease-in-out`;
+                    
+                    // สั่งให้ใบไม้เคลื่อนที่ไปยังเป้าหมาย
+                    setTimeout(() => {
+                        leaf.style.transform = `translate(${targetX}px, ${targetY}px) rotate(${Math.random() * 360}deg)`;
+                        leaf.style.opacity = 0.8; // เมื่อติดแล้วให้คงอยู่
+                    }, 50); // หน่วงเวลาเล็กน้อยเพื่อให้ transition ทำงาน
+                    
+                }, i * 100); // หน่วงเวลาให้ใบไม้แต่ละใบออกมาทีละนิด
+            }
+        }
+
+        // ฟังก์ชันหลักเมื่อมีการส่งฟอร์ม
+        document.getElementById('leaf-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let currentScore = 0;
+            
+            // 1. รวบรวมคะแนน
+            const q1 = document.querySelector('input[name="q1"]:checked');
+            const q2 = document.querySelector('input[name="q2"]:checked');
+            const q3 = document.querySelector('input[name="q3"]:checked');
+
+            if (q1) currentScore += parseInt(q1.value);
+            if (q2) currentScore += parseInt(q2.value);
+            if (q3) currentScore += parseInt(q3.value);
+
+            // 2. แสดงผลคะแนนที่ได้รับ
+            const mascotBubble = document.getElementById('mascot-bubble');
+            mascotBubble.textContent = `ยอดเยี่ยม! คุณมอบ ${currentScore} Carbon Leaves ให้โลกของเรา!`;
+
+            // 3. เริ่ม Animation ใบไม้
+            createLeafAnimation(currentScore);
+
+            // 4. อัปเดตยอดรวม
+            totalLeaves += currentScore;
+            document.getElementById('leaf-counter').textContent = totalLeaves;
+
+            // 5. รีเซ็ตฟอร์ม (เพื่อให้ผู้เล่นคนต่อไปเข้ามาใช้งานได้ทันที)
+            this.reset();
+        });
+    </script>
+</body>
+</html>
